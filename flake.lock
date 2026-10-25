@@ -13,11 +13,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792798615,
-        "narHash": "sha256-fAixYvAlOsj+Xhls8Rv1Wm7UQe01+XQ3HA1406lKHIg=",
+        "lastModified": 1792920082,
+        "narHash": "sha256-3ByofO1OK/O3ZjWo3rtv5z66l6uxgNBhBU0upY+tkZg=",
         "owner": "TensaminDev",
         "repo": "Client",
-        "rev": "785bc4193adeb9fce35ccd1a1a6cb85daecb92c9",
+        "rev": "ba269bbf03592886e9c2bea7e0ae5d06eae5ba3c",
         "type": "github"
       },
       "original": {
@@ -40,11 +40,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792837281,
+        "lastModified": 1792837786,
         "narHash": "sha256-3EFf+3hv55RhrIseAfDHjeD33jnfsC0FRuaERt+MTVY=",
         "owner": "TensaminDev",
         "repo": "Iota",
-        "rev": "a8b85ce0e467667dc6bef87962ac50a1f9e3d495",
+        "rev": "4aedaf05406c40dbebc5fc96617a476de68f0f78",
         "type": "github"
       },
       "original": {
@@ -91,11 +91,11 @@
     "mtp-type-maps": {
       "flake": false,
       "locked": {
-        "lastModified": 1792182877,
-        "narHash": "sha256-8y9i6ccph7sRghDf/hn6l2pDahAGK1wZnBluCHPdZ6w=",
+        "lastModified": 1792833625,
+        "narHash": "sha256-6LdCfePsalKo5KbRnLKEr6qSjqTW51/O67nn8MYvL7U=",
         "owner": "TensaminDev",
         "repo": "MTP-Type-Maps",
-        "rev": "76793898fac4b242918e2f26dc67312cb459d88b",
+        "rev": "228d87050b3a7df7bf604db6b4a7d71218c63338",
         "type": "github"
       },
       "original": {
@@ -107,11 +107,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1792506237,
-        "narHash": "sha256-Q/8KLB6jNfpaUN1HAedE/u/Et9feE/zYSsutBLKrCFk=",
+        "lastModified": 1792812153,
+        "narHash": "sha256-T2+XBfNbf9pecLUWS4+RtuVNZ3W8K5taG5QdV71mWlk=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "5adc50831c259f87faeb09ddf930d43597197473",
+        "rev": "674a2028661e550a97400c1cc992b9cca9a668a1",
         "type": "github"
       },
       "original": {
@@ -162,11 +162,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792785559,
-        "narHash": "sha256-xXeS+3jnrj9I5qFbZ6Kr+FYafNHPEj4c+KdtJvNUXos=",
+        "lastModified": 1792834497,
+        "narHash": "sha256-/b+wO0V6HFUqYMa3pgRT5kXz2F02+OTrpZGxPyk4Ohk=",
         "owner": "TensaminDev",
         "repo": "Omikron",
-        "rev": "09d7df8af143119b34e6082000b2231645ce9b4c",
+        "rev": "b9a2fecb2f2c09ad764532b4dcdc6ad48c10e00c",
         "type": "github"
       },
       "original": {
@@ -195,11 +195,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792739799,
-        "narHash": "sha256-M2rr/yPbTHvgAzCyZ+zHJHflFM0XU7t42Sw2skA3TQM=",
+        "lastModified": 1792913333,
+        "narHash": "sha256-wjoZGhxH/Yr+OsFRpNyV9DpMGQIdNEjjAOinfzQvadk=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "b0829a2cc9f7b596583331d78a942c1e5170d8a0",
+        "rev": "fad80eb74614f7dc37c1c83df8caae64361eda22",
         "type": "github"
       },
       "original": {
