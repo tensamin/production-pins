@@ -13,11 +13,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792920082,
-        "narHash": "sha256-3ByofO1OK/O3ZjWo3rtv5z66l6uxgNBhBU0upY+tkZg=",
+        "lastModified": 1792935594,
+        "narHash": "sha256-B4H9vKW2bDxHnHEaS2B2QNGujCs/wE71tirNCbW8hQQ=",
         "owner": "TensaminDev",
         "repo": "Client",
-        "rev": "ba269bbf03592886e9c2bea7e0ae5d06eae5ba3c",
+        "rev": "eb6f1c630bc2acf9a9f9dc5e3d7c3c9fec17bb1e",
         "type": "github"
       },
       "original": {
@@ -44,7 +44,7 @@
         "narHash": "sha256-3EFf+3hv55RhrIseAfDHjeD33jnfsC0FRuaERt+MTVY=",
         "owner": "TensaminDev",
         "repo": "Iota",
-        "rev": "4aedaf05406c40dbebc5fc96617a476de68f0f78",
+        "rev": "ca7d7d8873037ea6c007a73a7a1d20ff4f9fc656",
         "type": "github"
       },
       "original": {
@@ -166,7 +166,7 @@
         "narHash": "sha256-/b+wO0V6HFUqYMa3pgRT5kXz2F02+OTrpZGxPyk4Ohk=",
         "owner": "TensaminDev",
         "repo": "Omikron",
-        "rev": "b9a2fecb2f2c09ad764532b4dcdc6ad48c10e00c",
+        "rev": "8d0df4f841704ac31cc97953da58f725f60d2efd",
         "type": "github"
       },
       "original": {
