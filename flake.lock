@@ -13,11 +13,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792942233,
-        "narHash": "sha256-Ht4CZ2ylms9nvT4kobIRiS+SCOOnyDcgjFkAQSnIBnU=",
+        "lastModified": 1793222685,
+        "narHash": "sha256-TCozX01LvFBgJ8Xp2TWCSjr9S7EOSWs5qAKb1USzTqE=",
         "owner": "TensaminDev",
         "repo": "Client",
-        "rev": "dab5f65bc9a86c375df9fe3eaccf81eee12d899f",
+        "rev": "c8cba17383aa14ff4c115b87db76e476f6c95919",
         "type": "github"
       },
       "original": {
@@ -29,22 +29,24 @@
     },
     "iota": {
       "inputs": {
+        "mtp-src": "mtp-src",
         "nixpkgs": [
           "nixpkgs"
         ],
         "rust-overlay": [
           "rust-overlay"
         ],
+        "tau-src": "tau-src",
         "type-maps": [
           "mtp-type-maps"
         ]
       },
       "locked": {
-        "lastModified": 1792941347,
-        "narHash": "sha256-TfDKz+L0wL2jUbv8+UQ4PiFthcuB26uHu1vN1OT7FUE=",
+        "lastModified": 1793192469,
+        "narHash": "sha256-f/LAp6ZWjPqb+ty65tzdDbCGgpZ6tsrYJGdVY4Ed7JQ=",
         "owner": "TensaminDev",
         "repo": "Iota",
-        "rev": "376509eb40bf4ecded17c33024a33094ee48d395",
+        "rev": "fe645d74a6356d21cf4705d3c8a8d4ee82bbb8aa",
         "type": "github"
       },
       "original": {
@@ -122,14 +124,31 @@
         "type": "github"
       }
     },
+    "mtp-src_2": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793191985,
+        "narHash": "sha256-ZdN5I6IDRprF52quAptff1GeKDsT8swTThYg7TNMiPc=",
+        "owner": "Nonanium",
+        "repo": "MTP",
+        "rev": "87c535650a3a33b166139b02cdd7327d412d3bca",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Nonanium",
+        "repo": "MTP",
+        "rev": "87c535650a3a33b166139b02cdd7327d412d3bca",
+        "type": "github"
+      }
+    },
     "mtp-type-maps": {
       "flake": false,
       "locked": {
-        "lastModified": 1792833625,
-        "narHash": "sha256-6LdCfePsalKo5KbRnLKEr6qSjqTW51/O67nn8MYvL7U=",
+        "lastModified": 1793115588,
+        "narHash": "sha256-mvj+EqA6vB3kOD6u/NMzYmBvKUs063/YJYgVOQJ6J8Q=",
         "owner": "TensaminDev",
         "repo": "MTP-Type-Maps",
-        "rev": "228d87050b3a7df7bf604db6b4a7d71218c63338",
+        "rev": "6d0f1dee1391417b7f364189e03a39b17b01ce36",
         "type": "github"
       },
       "original": {
@@ -186,14 +205,14 @@
     "omikron": {
       "inputs": {
         "iota-src": "iota-src",
-        "mtp-src": "mtp-src",
+        "mtp-src": "mtp-src_2",
         "nixpkgs": [
           "nixpkgs"
         ],
         "rust-overlay": [
           "rust-overlay"
         ],
-        "tau-src": "tau-src",
+        "tau-src": "tau-src_2",
         "type-maps": [
           "mtp-type-maps"
         ]
@@ -246,6 +265,23 @@
       }
     },
     "tau-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793192085,
+        "narHash": "sha256-meDz9Ax4ML/lmHJrOiA8WksJaZRqBDRJ26MPuU7CLZo=",
+        "owner": "TensaminDev",
+        "repo": "Tau",
+        "rev": "cb1f5953c0f9e71c4a01688abaf8432fda3c90da",
+        "type": "github"
+      },
+      "original": {
+        "owner": "TensaminDev",
+        "repo": "Tau",
+        "rev": "cb1f5953c0f9e71c4a01688abaf8432fda3c90da",
+        "type": "github"
+      }
+    },
+    "tau-src_2": {
       "flake": false,
       "locked": {
         "lastModified": 1793192085,
