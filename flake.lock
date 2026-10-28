@@ -54,6 +54,23 @@
         "type": "github"
       }
     },
+    "iota-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793192469,
+        "narHash": "sha256-f/LAp6ZWjPqb+ty65tzdDbCGgpZ6tsrYJGdVY4Ed7JQ=",
+        "owner": "TensaminDev",
+        "repo": "Iota",
+        "rev": "fe645d74a6356d21cf4705d3c8a8d4ee82bbb8aa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "TensaminDev",
+        "repo": "Iota",
+        "rev": "fe645d74a6356d21cf4705d3c8a8d4ee82bbb8aa",
+        "type": "github"
+      }
+    },
     "iota_2": {
       "flake": false,
       "locked": {
@@ -85,6 +102,23 @@
         "owner": "nonanium",
         "ref": "master",
         "repo": "MTP",
+        "type": "github"
+      }
+    },
+    "mtp-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793191985,
+        "narHash": "sha256-ZdN5I6IDRprF52quAptff1GeKDsT8swTThYg7TNMiPc=",
+        "owner": "Nonanium",
+        "repo": "MTP",
+        "rev": "87c535650a3a33b166139b02cdd7327d412d3bca",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Nonanium",
+        "repo": "MTP",
+        "rev": "87c535650a3a33b166139b02cdd7327d412d3bca",
         "type": "github"
       }
     },
@@ -151,22 +185,25 @@
     },
     "omikron": {
       "inputs": {
+        "iota-src": "iota-src",
+        "mtp-src": "mtp-src",
         "nixpkgs": [
           "nixpkgs"
         ],
         "rust-overlay": [
           "rust-overlay"
         ],
+        "tau-src": "tau-src",
         "type-maps": [
           "mtp-type-maps"
         ]
       },
       "locked": {
-        "lastModified": 1792941383,
-        "narHash": "sha256-GSqy1Cy7nojYrfzlQBIVyyyRAg0cdqYyZaT/ekA+780=",
+        "lastModified": 1793192842,
+        "narHash": "sha256-s1BQ71noc7zZm1xUnkGTumcPIrfdKALcctP6khxqwfw=",
         "owner": "TensaminDev",
         "repo": "Omikron",
-        "rev": "a7669f35294cf71b5d7e3aadc3c1c2a4413b3a13",
+        "rev": "ae7dcaa76e4b12dd6c3098267a8e1f985d33ea7d",
         "type": "github"
       },
       "original": {
@@ -205,6 +242,23 @@
       "original": {
         "owner": "oxalica",
         "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "tau-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793192085,
+        "narHash": "sha256-meDz9Ax4ML/lmHJrOiA8WksJaZRqBDRJ26MPuU7CLZo=",
+        "owner": "TensaminDev",
+        "repo": "Tau",
+        "rev": "cb1f5953c0f9e71c4a01688abaf8432fda3c90da",
+        "type": "github"
+      },
+      "original": {
+        "owner": "TensaminDev",
+        "repo": "Tau",
+        "rev": "cb1f5953c0f9e71c4a01688abaf8432fda3c90da",
         "type": "github"
       }
     }
