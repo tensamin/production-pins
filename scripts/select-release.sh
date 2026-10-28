@@ -13,7 +13,10 @@ for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD ANDRO
   fi
 done
 [[ $IOTA_RELEASE_PUBLIC_KEY =~ ^[0-9a-f]{64}$ ]]
-tag="$CHANNEL-${GITHUB_SHA:0:7}"
+type_maps=$(nix eval --impure --raw --expr "(builtins.getFlake \"$PWD\").inputs.mtp-type-maps.outPath")
+version=$(sed -n 's/^protocol_version: "\([^"]*\)"$/\1/p' "$type_maps/type-maps.yaml")
+[[ $version =~ ^[0-9]+\.[0-9]+$ ]]
+tag="v$version-$CHANNEL-${GITHUB_SHA:0:7}"
 publish=true
 if release=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft,targetCommitish --jq '[.isDraft, .targetCommitish] | @tsv' 2>/dev/null); then
   IFS=$'\t' read -r draft target <<< "$release"
