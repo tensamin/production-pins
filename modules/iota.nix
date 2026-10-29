@@ -18,9 +18,10 @@ let
       required = cfg.webMode != "disabled";
       asset_dir = cfg.assetDir;
     }
-    // lib.optionalAttrs (cfg.certFile != null) {
-      certificate = cfg.certFile;
-      key = cfg.keyFile;
+    // {
+      certificate =
+        if cfg.certFile != null then cfg.certFile else "${cfg.stateDir}/tls/cert.pem";
+      key = if cfg.keyFile != null then cfg.keyFile else "${cfg.stateDir}/tls/key.pem";
     };
   };
   sourceConfig =
@@ -29,6 +30,17 @@ let
   setup = pkgs.writeShellScript "iota-setup" ''
     set -eu
     umask 077
+    ${lib.optionalString (cfg.settingsFile == null && cfg.certFile == null && cfg.webMode != "disabled") ''
+      if [ ! -s ${lib.escapeShellArg "${cfg.stateDir}/tls/cert.pem"} ] || [ ! -s ${lib.escapeShellArg "${cfg.stateDir}/tls/key.pem"} ]; then
+        install -d -m 0750 -o iota -g iota ${lib.escapeShellArg "${cfg.stateDir}/tls"}
+        ${pkgs.openssl}/bin/openssl req -x509 -newkey rsa:2048 -sha256 -nodes -days 3650 \
+          -subj /CN=localhost \
+          -addext subjectAltName=DNS:localhost,IP:127.0.0.1,IP:::1 \
+          -keyout ${lib.escapeShellArg "${cfg.stateDir}/tls/key.pem"} \
+          -out ${lib.escapeShellArg "${cfg.stateDir}/tls/cert.pem"}
+        chown iota:iota ${lib.escapeShellArg "${cfg.stateDir}/tls/cert.pem"} ${lib.escapeShellArg "${cfg.stateDir}/tls/key.pem"}
+      fi
+    ''}
     ${pkgs.bun}/bin/bun ${./merge-config.ts} ${lib.escapeShellArg sourceConfig} ${lib.escapeShellArg configFile}
     chown iota:iota ${lib.escapeShellArg configFile}
   '';
@@ -82,12 +94,12 @@ in
     certFile = mkOption {
       type = types.nullOr types.str;
       default = null;
-      description = "Runtime TLS certificate path. The iota user needs read access and traversal access to parent directories.";
+      description = "Runtime TLS certificate path, or null to generate a persistent self-signed certificate under stateDir/tls. The iota user needs read access and traversal access to parent directories.";
     };
     keyFile = mkOption {
       type = types.nullOr types.str;
       default = null;
-      description = "Runtime TLS private key path.";
+      description = "Runtime TLS private key path, or null to generate and retain it under stateDir/tls. Never copied into the Nix store.";
     };
     omegaApiUrl = mkOption {
       type = types.str;
@@ -128,10 +140,6 @@ in
       {
         assertion = (cfg.certFile == null) == (cfg.keyFile == null);
         message = "tensamin.iota: certFile and keyFile must be supplied together.";
-      }
-      {
-        assertion = cfg.settingsFile != null || cfg.webMode == "disabled" || cfg.certFile != null;
-        message = "tensamin.iota: an enabled listener requires certFile and keyFile, or a complete settingsFile with TLS.";
       }
       {
         assertion = lib.all (path: lib.hasPrefix "/" path) [
