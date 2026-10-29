@@ -13,11 +13,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793258859,
-        "narHash": "sha256-TCozX01LvFBgJ8Xp2TWCSjr9S7EOSWs5qAKb1USzTqE=",
+        "lastModified": 1793269165,
+        "narHash": "sha256-XYxRezl8zr5gWOYH00xMAgaObQeizMP/IEWvVJZ6CTU=",
         "owner": "TensaminDev",
         "repo": "Client",
-        "rev": "3825cfd8a694d60b5f3410228040714d15140be2",
+        "rev": "8722fcfb2f01428780603170b440455948bbd0f2",
         "type": "github"
       },
       "original": {
