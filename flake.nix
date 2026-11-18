@@ -31,7 +31,7 @@
       inputs.mtp-type-maps.follows = "mtp-type-maps";
     };
     mtp = {
-      url = "github:nonanium/MTP/27d06206514c39a199e9af0971faeae057ee9c48";
+      url = "github:nonanium/MTP/687e7ddaa000f925fa9e41883aabcf23ccb5cedb";
       flake = false;
     };
     mtp-type-maps = {

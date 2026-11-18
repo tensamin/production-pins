@@ -48,8 +48,9 @@ pkgs.writeShellScript "release-build" ''
   cp -r "$mtp_source" "$work_root/mtp"
   chmod -R u+w "$work_root/mtp"
   source=$(nix build --no-update-lock-file --no-link --print-out-paths ".#packages.$system.client-source")
-  cp -r "$source/." "$work/"
-  chmod -R u+w "$work"
+  cp -r "$source/frontend/client/." "$work/"
+  cp -r "$source/mtp/sdk/." "$work_root/mtp/sdk/"
+  chmod -R u+w "$work" "$work_root/mtp/sdk"
   export RELEASE_ROOT=$root RELEASE_OUT=$out RELEASE_WORK=$work RELEASE_ARCH=$arch
   export TENSAMIN_RELEASE_TAG=''${RELEASE_TAG:?} TENSAMIN_RELEASE_VERSION=$RELEASE_TAG
   export TENSAMIN_RELEASE_ASSET_BASE_URL="''${GITHUB_SERVER_URL:-https://github.com}/''${GITHUB_REPOSITORY:?}/releases/download/$RELEASE_TAG"
