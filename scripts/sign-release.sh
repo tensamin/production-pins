@@ -38,6 +38,3 @@ jq '.artifacts |= map(
   .name = ("Tensamin-" + .arch + "." + (.name | split(".") | last))
   | .url = ((.url | split("/") | .[:-1] | join("/")) + "/" + (.name | @uri))
 )' "build-output/$metadata" > "release/$metadata"
-if [[ $arch == x86_64 ]]; then
-  cp "build-output/Tensamin-$RELEASE_TAG.apk" release/Tensamin.apk
-fi

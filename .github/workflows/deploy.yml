@@ -50,8 +50,16 @@ jobs:
         include:
           - runner: ubuntu-24.04
             system: x86_64-linux
+            target: desktop
+            artifact: x86_64-linux
           - runner: ubuntu-24.04-arm
             system: aarch64-linux
+            target: desktop
+            artifact: aarch64-linux
+          - runner: ubuntu-24.04
+            system: x86_64-linux
+            target: android
+            artifact: android
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 360
     environment: ${{ inputs.channel }}
@@ -66,33 +74,61 @@ jobs:
         with:
           persist-credentials: false
       - uses: cachix/install-nix-action@v31
-      - name: Build and verify Client and Iota
+        with:
+          extra_nix_config: |
+            max-jobs = 2
+            cores = 2
+      - name: Cache Nix build outputs
+        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        continue-on-error: true
+        with:
+          primary-key: release-nix-v1-${{ matrix.artifact }}-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: release-nix-v1-${{ matrix.artifact }}-
+          gc-max-store-size: 3G
+      - name: Cache Gradle dependencies
+        if: matrix.target == 'android'
+        uses: actions/cache@v5
+        continue-on-error: true
+        with:
+          path: ${{ runner.temp }}/release-gradle
+          key: release-gradle-v1-${{ hashFiles('flake.lock') }}
+          restore-keys: release-gradle-v1-
+      - name: Build and verify ${{ matrix.artifact }}
         env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEYSTORE_BASE64: ${{ matrix.target == 'android' && secrets.ANDROID_KEYSTORE_BASE64 || '' }}
+          ANDROID_KEY_ALIAS: ${{ matrix.target == 'android' && secrets.ANDROID_KEY_ALIAS || '' }}
+          ANDROID_KEY_PASSWORD: ${{ matrix.target == 'android' && secrets.ANDROID_KEY_PASSWORD || '' }}
+          ANDROID_STORE_PASSWORD: ${{ matrix.target == 'android' && secrets.ANDROID_STORE_PASSWORD || '' }}
+          RELEASE_GRADLE_CACHE: ${{ matrix.target == 'android' && format('{0}/release-gradle', runner.temp) || '' }}
           RELEASE_SYSTEM: ${{ matrix.system }}
+          RELEASE_TARGET: ${{ matrix.target }}
         run: |
           builder=$(nix build --impure --no-update-lock-file --no-link --print-out-paths --expr \
             "import $PWD/packages/release-environment.nix { root = builtins.toPath \"$PWD\"; kind = \"build\"; system = \"$RELEASE_SYSTEM\"; }")
-          bash "$builder" "$CHANNEL" build-output "$RELEASE_SYSTEM"
+          bash "$builder" "$CHANNEL" build-output "$RELEASE_SYSTEM" "$RELEASE_TARGET"
           git diff --exit-code -- flake.lock
       - name: Sign Iota update metadata and validate installers
+        if: matrix.target == 'desktop'
         env:
           IOTA_RELEASE_SIGNING_KEY: ${{ secrets.IOTA_RELEASE_SIGNING_KEY }}
           IOTA_RELEASE_PUBLIC_KEY: ${{ vars.IOTA_RELEASE_PUBLIC_KEY }}
           RELEASE_SYSTEM: ${{ matrix.system }}
         run: nix develop --no-write-lock-file --command bash scripts/sign-release.sh
+      - name: Stage signed Android installer
+        if: matrix.target == 'android'
+        run: |
+          test -s "build-output/Tensamin-$RELEASE_TAG.apk"
+          install -Dm644 "build-output/Tensamin-$RELEASE_TAG.apk" release/Tensamin.apk
+          find "$RUNNER_TEMP/release-gradle" -type f \( -name '*.lock' -o -name gc.properties \) -delete
       - uses: actions/upload-artifact@v7
         with:
-          name: release-${{ matrix.system }}
+          name: release-${{ matrix.artifact }}
           path: release/
           if-no-files-found: error
           retention-days: 90
 
       - uses: actions/upload-artifact@v7
-        if: matrix.system == 'x86_64-linux'
+        if: matrix.artifact == 'x86_64-linux'
         with:
           name: channel-web
           path: build-output/client-web.tar.gz
@@ -109,6 +145,13 @@ jobs:
         with:
           persist-credentials: false
       - uses: cachix/install-nix-action@v31
+      - name: Restore x86_64 Nix build outputs
+        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
+        continue-on-error: true
+        with:
+          primary-key: release-nix-v1-x86_64-linux-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: release-nix-v1-x86_64-linux-
+          save: false
       - name: Select tested revision
         env:
           GH_TOKEN: ${{ github.token }}

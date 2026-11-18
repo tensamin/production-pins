@@ -2,9 +2,6 @@
 pkgs.writeShellScript "release-build" ''
   set -euo pipefail
   root=$(pwd)
-  export NIX_CONFIG="''${NIX_CONFIG:-}
-  max-jobs = 1
-  cores = 2"
   channel=''${1:?Channel required}
   out=$(realpath -m "''${2:?Output directory required}")
   [[ $channel == stable || $channel == canary ]]
@@ -12,24 +9,36 @@ pkgs.writeShellScript "release-build" ''
   export TENSAMIN_CHANNEL=$channel ELECTRON_SKIP_BINARY_DOWNLOAD=1
   export TENSAMIN_ANDROID_VERSION_CODE=''${RELEASE_SEQUENCE:?}
   system=''${3:-${pkgs.stdenv.hostPlatform.system}}
-  environment() {
-    nix build --impure --no-update-lock-file --no-link --print-out-paths --expr "import $root/packages/release-environment.nix { root = builtins.toPath \"$root\"; kind = \"$1\"; channel = \"$channel\"; system = \"$system\"; }"
-  }
-  environment checks >/dev/null
-  portable=$(environment portable)
-  cp -rL "$portable/." "$out/"
-  chmod -R u+w "$out"
+  target=''${4:-all}
   arch=''${system%-linux}
-  if [[ $arch == x86_64 ]]; then
-    web=$(environment web)
-    tar -czf "$out/client-web.tar.gz" -C "$web" .
+  [[ $target == all || $target == desktop || ( $target == android && $arch == x86_64 ) ]]
+  build_android=false
+  if [[ $target != desktop && $arch == x86_64 ]]; then
+    build_android=true
+  fi
+  environment() {
+    local kind=$1
+    shift
+    nix build --impure --no-update-lock-file --print-out-paths "$@" --expr "import $root/packages/release-environment.nix { root = builtins.toPath \"$root\"; kind = \"$kind\"; channel = \"$channel\"; system = \"$system\"; }"
+  }
+  if [[ $target != android ]]; then
+    link=(--no-link)
+    if [[ -n ''${RUNNER_TEMP:-} ]]; then
+      link=(--out-link "$RUNNER_TEMP/release-linux")
+    fi
+    linux=$(environment linux "''${link[@]}")
+    cp -rL "$linux/portable/." "$out/"
+    chmod -R u+w "$out"
+    if [[ $arch == x86_64 ]]; then
+      tar -czf "$out/client-web.tar.gz" -C "$linux/web" .
+    fi
   fi
   work_root=$(mktemp -d)
   work=$work_root/tensamin/client
   cleanup() {
     local status=$?
     trap - EXIT
-    if [[ $arch == x86_64 && -n ''${RELEASE_WORK:-} && -f $work/apps/tauri/src-tauri/gen/android/gradlew ]]; then
+    if [[ $build_android == true && -n ''${RELEASE_WORK:-} && -f $work/apps/tauri/src-tauri/gen/android/gradlew ]]; then
       # Re-enter the SDK's scoped GRADLE_USER_HOME, not a user's global daemon.
       if ! nix develop --impure --no-update-lock-file --expr "import $root/packages/release-environment.nix { root = builtins.toPath \"$root\"; kind = \"tauri\"; }" \
         --command bash "$work/apps/tauri/src-tauri/gen/android/gradlew" --stop >/dev/null 2>&1; then
@@ -56,12 +65,18 @@ pkgs.writeShellScript "release-build" ''
   export TENSAMIN_RELEASE_ASSET_BASE_URL="''${GITHUB_SERVER_URL:-https://github.com}/''${GITHUB_REPOSITORY:?}/releases/download/$RELEASE_TAG"
   # Pinned client revisions may still read the previous variable name.
   export FORGEJO_RELEASE_ASSET_BASE_URL=$TENSAMIN_RELEASE_ASSET_BASE_URL
-  desktop=$(environment client-desktop)
-  nix develop --impure --no-update-lock-file --expr "import $root/packages/release-environment.nix { root = builtins.toPath \"$root\"; kind = \"electron\"; system = \"$system\"; }" \
-    --command bash "$desktop"
-  if [[ $arch == x86_64 ]]; then
-    android=$(environment client-android)
-    nix develop --impure --no-update-lock-file --expr "import $root/packages/release-environment.nix { root = builtins.toPath \"$root\"; kind = \"tauri\"; }" \
+  if [[ $target != android ]]; then
+    desktop=$(environment client-desktop --no-link)
+    nix develop --impure --no-update-lock-file --expr "import $root/packages/release-environment.nix { root = builtins.toPath \"$root\"; kind = \"electron\"; system = \"$system\"; }" \
+      --command bash "$desktop"
+  fi
+  if [[ $build_android == true ]]; then
+    android=$(environment client-android --no-link)
+    profile=()
+    if [[ -n ''${RUNNER_TEMP:-} ]]; then
+      profile=(--profile "$RUNNER_TEMP/release-android")
+    fi
+    nix develop --impure --no-update-lock-file "''${profile[@]}" --expr "import $root/packages/release-environment.nix { root = builtins.toPath \"$root\"; kind = \"tauri\"; }" \
       --command bash "$android"
   fi
 ''
