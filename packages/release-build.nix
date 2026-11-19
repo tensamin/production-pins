@@ -78,11 +78,7 @@ pkgs.writeShellScript "release-build" ''
   fi
   if [[ $build_android == true ]]; then
     android=$(environment client-android --no-link)
-    profile=()
-    if [[ -n ''${RUNNER_TEMP:-} ]]; then
-      profile=(--profile "$RUNNER_TEMP/release-android")
-    fi
-    nix develop --impure --no-update-lock-file "''${profile[@]}" --expr "import $root/packages/release-environment.nix { root = builtins.toPath \"$root\"; kind = \"tauri\"; }" \
+    nix develop --impure --no-update-lock-file --expr "import $root/packages/release-environment.nix { root = builtins.toPath \"$root\"; kind = \"tauri\"; }" \
       --command bash "$android"
   fi
 ''

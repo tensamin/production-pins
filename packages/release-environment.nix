@@ -105,7 +105,10 @@ else if kind == "linux" then
       inherit (artifacts) portable;
       portable-libraries = portableLibraries;
     }
-    // pkgs.lib.optionalAttrs (system == "x86_64-linux") { inherit web; }
+    // pkgs.lib.optionalAttrs (system == "x86_64-linux") {
+      inherit web;
+      inherit (project.packages) iota-daemon;
+    }
   )
 else if kind == "packages" then
   artifacts.packages

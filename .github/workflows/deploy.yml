@@ -94,17 +94,18 @@ jobs:
             } | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -d ' ' -f 1)
           cargo=$(sha256sum "$client/apps/tauri/src-tauri/Cargo.lock" | cut -d ' ' -f 1)
           {
-            printf 'nix=release-nix-v2-android-%s\n' "${toolchain##*/}"
             printf 'gradle=release-gradle-v2-%s\n' "$gradle"
-            printf 'rust=release-android-rust-v1-%s-%s\n' "${toolchain##*/}" "$cargo"
+            printf 'rust=release-android-rust-v2-%s-%s\n' "${toolchain##*/}" "$cargo"
           } >> "$GITHUB_OUTPUT"
       - name: Cache Nix build outputs
+        if: matrix.target == 'desktop'
         uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
         continue-on-error: true
         with:
-          primary-key: ${{ steps.android-cache.outputs.nix || format('release-nix-v2-{0}-{1}', matrix.artifact, hashFiles('flake.lock')) }}
+          primary-key: release-nix-${{ matrix.artifact == 'x86_64-linux' && 'v3' || 'v2' }}-${{ matrix.artifact }}-${{ hashFiles('flake.lock') }}
           restore-prefixes-first-match: |
-            ${{ matrix.target == 'desktop' && format('release-nix-v2-{0}-', matrix.artifact) || '' }}
+            release-nix-v3-${{ matrix.artifact }}-
+            release-nix-v2-${{ matrix.artifact }}-
             release-nix-v1-${{ matrix.artifact }}-
           gc-max-store-size: 3G
       - name: Cache Gradle dependencies
@@ -124,7 +125,9 @@ jobs:
         with:
           path: ${{ runner.temp }}/release-sccache
           key: ${{ steps.android-cache.outputs.rust }}
-          restore-keys: release-android-rust-v1-
+          restore-keys: |
+            release-android-rust-v2-
+            release-android-rust-v1-
       - name: Build and verify ${{ matrix.artifact }}
         env:
           ANDROID_KEYSTORE_BASE64: ${{ matrix.target == 'android' && secrets.ANDROID_KEYSTORE_BASE64 || '' }}
@@ -139,7 +142,7 @@ jobs:
           if [[ -n $RELEASE_RUST_CACHE ]] && compiler_cache=$(nix build --impure --no-update-lock-file --no-link --print-out-paths --expr \
             '(builtins.getAttr builtins.currentSystem (builtins.getFlake (toString ./.)).inputs.nixpkgs.legacyPackages).sccache'); then
             export RUSTC_WRAPPER="$compiler_cache/bin/sccache" CARGO_INCREMENTAL=0
-            export SCCACHE_DIR="$RELEASE_RUST_CACHE" SCCACHE_CACHE_SIZE=1200M SCCACHE_IGNORE_SERVER_IO_ERROR=1
+            export SCCACHE_DIR="$RELEASE_RUST_CACHE" SCCACHE_CACHE_SIZE=2500M SCCACHE_IGNORE_SERVER_IO_ERROR=1
             trap '"$RUSTC_WRAPPER" --stop-server || true' EXIT
           fi
           builder=$(nix build --impure --no-update-lock-file --no-link --print-out-paths --expr \
@@ -188,8 +191,9 @@ jobs:
         uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
         continue-on-error: true
         with:
-          primary-key: release-nix-v2-x86_64-linux-${{ hashFiles('flake.lock') }}
+          primary-key: release-nix-v3-x86_64-linux-${{ hashFiles('flake.lock') }}
           restore-prefixes-first-match: |
+            release-nix-v3-x86_64-linux-
             release-nix-v2-x86_64-linux-
             release-nix-v1-x86_64-linux-
           save: false
