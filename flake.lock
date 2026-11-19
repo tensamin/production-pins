@@ -178,11 +178,11 @@
     "mtp-type-maps": {
       "flake": false,
       "locked": {
-        "lastModified": 1794427737,
-        "narHash": "sha256-UPKNhkhRBHrkzjvrVrmkCQfO/o5UlaLYdj+TFPrikdY=",
+        "lastModified": 1795113370,
+        "narHash": "sha256-neW1ekIyyV5NrkdwltJ4l6IuW9+M+FIB/wlAbJmzhPU=",
         "owner": "TensaminDev",
         "repo": "MTP-Type-Maps",
-        "rev": "299fe1f3115f093a86c81393ca13b7e98c8a661b",
+        "rev": "39c5aa3eaffdab7c43956f7170aaf58a63afbd4f",
         "type": "github"
       },
       "original": {
