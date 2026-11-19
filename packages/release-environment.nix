@@ -30,6 +30,19 @@ let
       inherit name path;
     }) checks
   );
+  # Statically linked installers do not keep their build libraries alive for the cache.
+  portableLibraries = pkgs.linkFarm "iota-portable-build-libraries" (
+    pkgs.lib.concatMap (library: [
+      {
+        name = "${library.pname}-dev";
+        path = pkgs.lib.getDev library;
+      }
+      {
+        name = "${library.pname}-lib";
+        path = pkgs.lib.getLib library;
+      }
+    ]) project.packages.iota-portable.buildInputs
+  );
   web = project.packages.client-web.overrideAttrs { TENSAMIN_CHANNEL = channel; };
 in
 if kind == "tools" then
@@ -90,6 +103,7 @@ else if kind == "linux" then
     {
       checks = releaseChecks;
       inherit (artifacts) portable;
+      portable-libraries = portableLibraries;
     }
     // pkgs.lib.optionalAttrs (system == "x86_64-linux") { inherit web; }
   )

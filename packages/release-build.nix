@@ -33,7 +33,13 @@ pkgs.writeShellScript "release-build" ''
       tar -czf "$out/client-web.tar.gz" -C "$linux/web" .
     fi
   fi
-  work_root=$(mktemp -d)
+  if [[ -n ''${RELEASE_RUST_CACHE:-} && -n ''${RUNNER_TEMP:-} ]]; then
+    # Cargo's metadata for path dependencies includes the workspace path.
+    work_root=$RUNNER_TEMP/release-work
+    mkdir "$work_root"
+  else
+    work_root=$(mktemp -d)
+  fi
   work=$work_root/tensamin/client
   cleanup() {
     local status=$?

@@ -92,13 +92,20 @@ jobs:
               printf '%s\0' Cargo.lock
               find gen/android -type f \( -name '*.gradle' -o -name '*.gradle.kts' -o -name '*.properties' -o -name '*.toml' -o -name 'gradle-wrapper.jar' \) -print0
             } | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -d ' ' -f 1)
-          printf 'nix=release-nix-v2-android-%s\ngradle=release-gradle-v2-%s\n' "${toolchain##*/}" "$gradle" >> "$GITHUB_OUTPUT"
+          cargo=$(sha256sum "$client/apps/tauri/src-tauri/Cargo.lock" | cut -d ' ' -f 1)
+          {
+            printf 'nix=release-nix-v2-android-%s\n' "${toolchain##*/}"
+            printf 'gradle=release-gradle-v2-%s\n' "$gradle"
+            printf 'rust=release-android-rust-v1-%s-%s\n' "${toolchain##*/}" "$cargo"
+          } >> "$GITHUB_OUTPUT"
       - name: Cache Nix build outputs
         uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
         continue-on-error: true
         with:
-          primary-key: ${{ steps.android-cache.outputs.nix || format('release-nix-v1-{0}-{1}', matrix.artifact, hashFiles('flake.lock')) }}
-          restore-prefixes-first-match: release-nix-v1-${{ matrix.artifact }}-
+          primary-key: ${{ steps.android-cache.outputs.nix || format('release-nix-v2-{0}-{1}', matrix.artifact, hashFiles('flake.lock')) }}
+          restore-prefixes-first-match: |
+            ${{ matrix.target == 'desktop' && format('release-nix-v2-{0}-', matrix.artifact) || '' }}
+            release-nix-v1-${{ matrix.artifact }}-
           gc-max-store-size: 3G
       - name: Cache Gradle dependencies
         if: matrix.target == 'android'
@@ -110,6 +117,14 @@ jobs:
           restore-keys: |
             release-gradle-v2-
             release-gradle-v1-
+      - name: Cache Android Rust compilation
+        if: steps.android-cache.outputs.rust != ''
+        uses: actions/cache@v5
+        continue-on-error: true
+        with:
+          path: ${{ runner.temp }}/release-sccache
+          key: ${{ steps.android-cache.outputs.rust }}
+          restore-keys: release-android-rust-v1-
       - name: Build and verify ${{ matrix.artifact }}
         env:
           ANDROID_KEYSTORE_BASE64: ${{ matrix.target == 'android' && secrets.ANDROID_KEYSTORE_BASE64 || '' }}
@@ -117,9 +132,16 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ matrix.target == 'android' && secrets.ANDROID_KEY_PASSWORD || '' }}
           ANDROID_STORE_PASSWORD: ${{ matrix.target == 'android' && secrets.ANDROID_STORE_PASSWORD || '' }}
           RELEASE_GRADLE_CACHE: ${{ matrix.target == 'android' && format('{0}/release-gradle', runner.temp) || '' }}
+          RELEASE_RUST_CACHE: ${{ steps.android-cache.outputs.rust != '' && format('{0}/release-sccache', runner.temp) || '' }}
           RELEASE_SYSTEM: ${{ matrix.system }}
           RELEASE_TARGET: ${{ matrix.target }}
         run: |
+          if [[ -n $RELEASE_RUST_CACHE ]] && compiler_cache=$(nix build --impure --no-update-lock-file --no-link --print-out-paths --expr \
+            '(builtins.getAttr builtins.currentSystem (builtins.getFlake (toString ./.)).inputs.nixpkgs.legacyPackages).sccache'); then
+            export RUSTC_WRAPPER="$compiler_cache/bin/sccache" CARGO_INCREMENTAL=0
+            export SCCACHE_DIR="$RELEASE_RUST_CACHE" SCCACHE_CACHE_SIZE=1200M SCCACHE_IGNORE_SERVER_IO_ERROR=1
+            trap '"$RUSTC_WRAPPER" --stop-server || true' EXIT
+          fi
           builder=$(nix build --impure --no-update-lock-file --no-link --print-out-paths --expr \
             "import $PWD/packages/release-environment.nix { root = builtins.toPath \"$PWD\"; kind = \"build\"; system = \"$RELEASE_SYSTEM\"; }")
           bash "$builder" "$CHANNEL" build-output "$RELEASE_SYSTEM" "$RELEASE_TARGET"
@@ -166,8 +188,10 @@ jobs:
         uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7
         continue-on-error: true
         with:
-          primary-key: release-nix-v1-x86_64-linux-${{ hashFiles('flake.lock') }}
-          restore-prefixes-first-match: release-nix-v1-x86_64-linux-
+          primary-key: release-nix-v2-x86_64-linux-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: |
+            release-nix-v2-x86_64-linux-
+            release-nix-v1-x86_64-linux-
           save: false
       - name: Select tested revision
         env:
